@@ -21,7 +21,7 @@ export default async function Home({
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center px-4 py-10">
+    <div className="grid min-h-svh w-full place-items-center px-4">
       <LookupForm />
     </div>
   );
