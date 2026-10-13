@@ -1,11 +1,9 @@
-import { Suspense } from "react";
-
 import { ExportList } from "@/components/export-list";
 import { InvalidAccount } from "@/components/invalid-account";
 import { isCustomerNumber, isLocationNumber } from "@/lib/account";
 import { getEmployees } from "@/lib/employees";
 
-async function ExportBody({
+export default async function ExportPage({
   params,
 }: {
   params: Promise<{ customer: string; location: string }>;
@@ -16,31 +14,11 @@ async function ExportBody({
     return <InvalidAccount />;
   }
 
-  const employees = getEmployees(customer, location);
-
   return (
     <ExportList
       customerNumber={customer}
       locationNumber={location}
-      employees={employees}
+      employees={getEmployees(customer, location)}
     />
-  );
-}
-
-export default function ExportPage({
-  params,
-}: {
-  params: Promise<{ customer: string; location: string }>;
-}) {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-full items-center justify-center text-sm text-muted-foreground">
-          Loading pressure scan export…
-        </div>
-      }
-    >
-      <ExportBody params={params} />
-    </Suspense>
   );
 }

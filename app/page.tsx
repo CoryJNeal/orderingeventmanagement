@@ -1,7 +1,26 @@
+import { redirect } from "next/navigation";
+
 import { LookupForm } from "@/components/lookup-form";
 import { SiteHeader } from "@/components/site-header";
+import {
+  accountPath,
+  isCustomerNumber,
+  isLocationNumber,
+} from "@/lib/account";
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ customer?: string; location?: string }>;
+}) {
+  const query = await searchParams;
+  const customer = query.customer?.trim() ?? "";
+  const location = query.location?.trim() ?? "";
+
+  if (isCustomerNumber(customer) && isLocationNumber(location)) {
+    redirect(accountPath(customer, location));
+  }
+
   return (
     <div className="flex min-h-full flex-col">
       <SiteHeader />

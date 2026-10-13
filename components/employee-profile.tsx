@@ -21,7 +21,7 @@ import { accountPath, mockScanPath } from "@/lib/account";
 import { employeeDisplayName } from "@/lib/employees";
 import { SCAN_BLURBS, SCAN_LABELS, formatScanDate } from "@/lib/scans";
 import { cn } from "@/lib/utils";
-import type { ScanType } from "@/lib/types";
+import type { Employee, ScanType } from "@/lib/types";
 
 const SCAN_ICONS: Record<ScanType, typeof Footprints> = {
   "footwear-sizing": Footprints,
@@ -33,17 +33,20 @@ export function EmployeeProfile({
   customerNumber,
   locationNumber,
   employeeId,
+  initialEmployee,
 }: {
   customerNumber: string;
   locationNumber: string;
   employeeId: string;
+  initialEmployee: Employee | null;
 }) {
-  const { employee, markComplete } = useLiveEmployee(
+  const { employee: liveEmployee, markComplete } = useLiveEmployee(
     customerNumber,
     locationNumber,
     employeeId
   );
   const [pressureOpen, setPressureOpen] = useState(false);
+  const employee = liveEmployee ?? initialEmployee;
 
   if (!employee) {
     return (

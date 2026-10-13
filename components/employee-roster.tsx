@@ -23,17 +23,22 @@ import { employeePath, exportPath } from "@/lib/account";
 import { employeeDisplayName } from "@/lib/employees";
 import { formatScanDate, latestScanDate } from "@/lib/scans";
 import { searchEmployees } from "@/lib/search";
+import type { Employee } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export function EmployeeRoster({
   customerNumber,
   locationNumber,
+  initialEmployees,
 }: {
   customerNumber: string;
   locationNumber: string;
+  initialEmployees: Employee[];
 }) {
   const router = useRouter();
-  const employees = useLiveEmployees(customerNumber, locationNumber);
+  const liveEmployees = useLiveEmployees(customerNumber, locationNumber);
+  const employees =
+    liveEmployees.length > 0 ? liveEmployees : initialEmployees;
   const [query, setQuery] = useState("");
   const results = useMemo(
     () => searchEmployees(employees, query),

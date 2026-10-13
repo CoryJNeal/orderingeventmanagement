@@ -1,10 +1,9 @@
-import { Suspense } from "react";
-
 import { EmployeeProfile } from "@/components/employee-profile";
 import { InvalidAccount } from "@/components/invalid-account";
 import { isCustomerNumber, isLocationNumber } from "@/lib/account";
+import { getEmployees } from "@/lib/employees";
 
-async function EmployeeBody({
+export default async function EmployeePage({
   params,
 }: {
   params: Promise<{ customer: string; location: string; id: string }>;
@@ -15,29 +14,15 @@ async function EmployeeBody({
     return <InvalidAccount />;
   }
 
+  const initialEmployee =
+    getEmployees(customer, location).find((person) => person.id === id) ?? null;
+
   return (
     <EmployeeProfile
       customerNumber={customer}
       locationNumber={location}
       employeeId={id}
+      initialEmployee={initialEmployee}
     />
-  );
-}
-
-export default function EmployeePage({
-  params,
-}: {
-  params: Promise<{ customer: string; location: string; id: string }>;
-}) {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-full items-center justify-center text-sm text-muted-foreground">
-          Loading employee profile…
-        </div>
-      }
-    >
-      <EmployeeBody params={params} />
-    </Suspense>
   );
 }

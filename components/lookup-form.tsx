@@ -1,9 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,35 +11,29 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { accountPath, isCustomerNumber, isLocationNumber } from "@/lib/account";
+import { isCustomerNumber, isLocationNumber } from "@/lib/account";
+import { cn } from "@/lib/utils";
 
 export function LookupForm() {
-  const router = useRouter();
   const [customerNumber, setCustomerNumber] = useState("");
   const [locationNumber, setLocationNumber] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const customerError =
-    submitted && !isCustomerNumber(customerNumber)
-      ? "Enter the 6-digit customer number."
-      : null;
-  const locationError =
-    submitted && !isLocationNumber(locationNumber)
-      ? "Enter the 5-digit location number."
-      : null;
+  const customerValid = isCustomerNumber(customerNumber);
+  const locationValid = isLocationNumber(locationNumber);
+  const customerError = submitted && !customerValid
+    ? "Enter the 6-digit customer number."
+    : null;
+  const locationError = submitted && !locationValid
+    ? "Enter the 5-digit location number."
+    : null;
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
     setSubmitted(true);
-    if (
-      !isCustomerNumber(customerNumber) ||
-      !isLocationNumber(locationNumber)
-    ) {
-      return;
+    if (!customerValid || !locationValid) {
+      event.preventDefault();
     }
-    router.push(accountPath(customerNumber, locationNumber));
   }
 
   return (
@@ -52,20 +45,24 @@ export function LookupForm() {
           spoofed 10-person roster for any valid customer and location.
         </CardDescription>
       </CardHeader>
-      <form onSubmit={onSubmit}>
+      <form action="/" method="get" onSubmit={onSubmit}>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="customer-number">Customer number</Label>
-            <Input
+            <input
               id="customer-number"
+              name="customer"
               inputMode="numeric"
               autoComplete="off"
               maxLength={6}
               placeholder="123456"
               value={customerNumber}
-              aria-invalid={Boolean(customerError)}
+              aria-invalid={Boolean(customerError) || undefined}
+              className="h-10 w-full rounded-lg border border-input bg-background px-2.5 text-base outline-none md:text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               onChange={(event) =>
-                setCustomerNumber(event.target.value.replace(/\D/g, "").slice(0, 6))
+                setCustomerNumber(
+                  event.target.value.replace(/\D/g, "").slice(0, 6)
+                )
               }
             />
             {customerError ? (
@@ -76,16 +73,20 @@ export function LookupForm() {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="location-number">Location number</Label>
-            <Input
+            <input
               id="location-number"
+              name="location"
               inputMode="numeric"
               autoComplete="off"
               maxLength={5}
               placeholder="00142"
               value={locationNumber}
-              aria-invalid={Boolean(locationError)}
+              aria-invalid={Boolean(locationError) || undefined}
+              className="h-10 w-full rounded-lg border border-input bg-background px-2.5 text-base outline-none md:text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               onChange={(event) =>
-                setLocationNumber(event.target.value.replace(/\D/g, "").slice(0, 5))
+                setLocationNumber(
+                  event.target.value.replace(/\D/g, "").slice(0, 5)
+                )
               }
             />
             {locationError ? (
@@ -96,9 +97,12 @@ export function LookupForm() {
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit" size="lg" className="w-full sm:w-auto">
+          <button
+            type="submit"
+            className={cn(buttonVariants({ size: "lg" }), "w-full sm:w-auto")}
+          >
             Load employee roster
-          </Button>
+          </button>
         </CardFooter>
       </form>
     </Card>
