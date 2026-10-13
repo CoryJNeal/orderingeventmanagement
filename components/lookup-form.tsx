@@ -3,14 +3,7 @@
 import { useState } from "react";
 
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { isCustomerNumber, isLocationNumber } from "@/lib/account";
 import { cn } from "@/lib/utils";
@@ -22,12 +15,14 @@ export function LookupForm() {
 
   const customerValid = isCustomerNumber(customerNumber);
   const locationValid = isLocationNumber(locationNumber);
-  const customerError = submitted && !customerValid
-    ? "Enter the 6-digit customer number."
-    : null;
-  const locationError = submitted && !locationValid
-    ? "Enter the 5-digit location number."
-    : null;
+  const customerError =
+    submitted && !customerValid
+      ? "Enter the 6-digit customer number."
+      : null;
+  const locationError =
+    submitted && !locationValid
+      ? "Enter the 5-digit location number."
+      : null;
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     setSubmitted(true);
@@ -37,14 +32,7 @@ export function LookupForm() {
   }
 
   return (
-    <Card className="w-full max-w-lg shadow-sm">
-      <CardHeader className="border-b">
-        <CardTitle>Open a customer event</CardTitle>
-        <CardDescription>
-          Enter the account numbers from the event brief. This prototype loads a
-          spoofed 10-person roster for any valid customer and location.
-        </CardDescription>
-      </CardHeader>
+    <Card className="w-full max-w-sm shadow-sm">
       <form action="/" method="get" onSubmit={onSubmit}>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
@@ -67,9 +55,7 @@ export function LookupForm() {
             />
             {customerError ? (
               <p className="text-sm text-destructive">{customerError}</p>
-            ) : (
-              <p className="text-sm text-muted-foreground">Exactly 6 digits.</p>
-            )}
+            ) : null}
           </div>
           <div className="grid gap-2">
             <Label htmlFor="location-number">Location number</Label>
@@ -91,17 +77,15 @@ export function LookupForm() {
             />
             {locationError ? (
               <p className="text-sm text-destructive">{locationError}</p>
-            ) : (
-              <p className="text-sm text-muted-foreground">Exactly 5 digits.</p>
-            )}
+            ) : null}
           </div>
         </CardContent>
         <CardFooter>
           <button
             type="submit"
-            className={cn(buttonVariants({ size: "lg" }), "w-full sm:w-auto")}
+            className={cn(buttonVariants({ size: "lg" }), "w-full")}
           >
-            Load employee roster
+            Submit
           </button>
         </CardFooter>
       </form>
