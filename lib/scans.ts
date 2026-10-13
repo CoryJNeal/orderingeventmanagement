@@ -53,6 +53,7 @@ export function formatScanDate(iso: string | null) {
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZone: "UTC",
   });
 }
 
