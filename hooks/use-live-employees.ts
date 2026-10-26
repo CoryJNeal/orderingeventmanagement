@@ -165,11 +165,13 @@ export function useLiveEmployeesForPairs(
   );
 }
 
+const EMPTY_EMPLOYEES: Employee[] = [];
+
 export function useLiveEmployeesForEvent(event: ScanEvent | null) {
   return useSyncExternalStore(
     subscribe,
-    () => (event ? eventSnapshot(event) : []),
-    () => (event ? seedEvent(event) : [])
+    () => (event ? eventSnapshot(event) : EMPTY_EMPLOYEES),
+    () => (event ? seedEvent(event) : EMPTY_EMPLOYEES)
   );
 }
 

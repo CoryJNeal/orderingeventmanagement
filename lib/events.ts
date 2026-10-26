@@ -7,6 +7,9 @@ export const EVENTS_UPDATED = "event-scan-events-updated";
 /** Demo locations returned when an event includes a whole customer account. */
 export const DEMO_CUSTOMER_LOCATIONS = ["00142", "00143", "00201"] as const;
 
+let cachedRaw: string | null | undefined;
+let cachedEvents: ScanEvent[] = [];
+
 export function locationsForAccount(account: EventAccount): string[] {
   if (account.locationNumber) return [account.locationNumber];
   return [...DEMO_CUSTOMER_LOCATIONS];
@@ -34,14 +37,22 @@ export function expandEventAccounts(
 }
 
 export function readEvents(): ScanEvent[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return cachedEvents;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
+    if (raw === cachedRaw) return cachedEvents;
+    cachedRaw = raw;
+    if (!raw) {
+      cachedEvents = [];
+      return cachedEvents;
+    }
     const parsed = JSON.parse(raw) as ScanEvent[];
-    return Array.isArray(parsed) ? parsed : [];
+    cachedEvents = Array.isArray(parsed) ? parsed : [];
+    return cachedEvents;
   } catch {
-    return [];
+    cachedRaw = undefined;
+    cachedEvents = [];
+    return cachedEvents;
   }
 }
 
@@ -63,14 +74,20 @@ export function saveEvent(
   };
 
   const next = [event, ...events.filter((item) => item.id !== event.id)];
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  const raw = JSON.stringify(next);
+  window.localStorage.setItem(STORAGE_KEY, raw);
+  cachedRaw = raw;
+  cachedEvents = next;
   window.dispatchEvent(new Event(EVENTS_UPDATED));
   return event;
 }
 
 export function deleteEvent(eventId: string) {
   const next = readEvents().filter((event) => event.id !== eventId);
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  const raw = JSON.stringify(next);
+  window.localStorage.setItem(STORAGE_KEY, raw);
+  cachedRaw = raw;
+  cachedEvents = next;
   window.dispatchEvent(new Event(EVENTS_UPDATED));
 }
 
