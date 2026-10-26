@@ -39,8 +39,8 @@ export function LoginForm() {
   const { isAuthenticated, signIn } = useAuth();
   const ready = useIsClient();
   const [step, setStep] = useState<Step>("credentials");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(DEMO_EMAIL);
+  const [password, setPassword] = useState(DEMO_PASSWORD);
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -57,6 +57,7 @@ export function LoginForm() {
       return;
     }
     setError(null);
+    setOtp(DEMO_OTP);
     setStep("otp");
   }
 
