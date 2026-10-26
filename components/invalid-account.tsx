@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { lookupPath } from "@/lib/account";
 import { cn } from "@/lib/utils";
 
 export function InvalidAccount() {
@@ -25,8 +26,8 @@ export function InvalidAccount() {
             </CardDescription>
           </CardHeader>
           <CardFooter>
-            <Link href="/" className={cn(buttonVariants())}>
-              Return to lookup
+            <Link href={lookupPath()} className={cn(buttonVariants())}>
+              Return to employee look up
             </Link>
           </CardFooter>
         </Card>

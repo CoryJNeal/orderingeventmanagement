@@ -1,7 +1,12 @@
+import { expandEventAccounts } from "@/lib/events";
 import { applyOverrides, readOverrides } from "@/lib/scans";
-import type { Employee, ScanRecord } from "@/lib/types";
+import { generateScanId } from "@/lib/scan-id";
+import type { Employee, ScanEvent, ScanRecord } from "@/lib/types";
 
-type SeedEmployee = Omit<Employee, "customerNumber" | "locationNumber">;
+type SeedEmployee = Omit<
+  Employee,
+  "customerNumber" | "locationNumber" | "scanId"
+>;
 
 function scan(
   status: ScanRecord["status"],
@@ -133,6 +138,7 @@ export function getEmployees(
     ...person,
     customerNumber,
     locationNumber,
+    scanId: generateScanId(person.id, customerNumber, locationNumber),
     scans: {
       "footwear-sizing": { ...person.scans["footwear-sizing"] },
       "footwear-pressure": { ...person.scans["footwear-pressure"] },
@@ -161,6 +167,31 @@ export function getLiveEmployee(
       (employee) => employee.id === employeeId
     ) ?? null
   );
+}
+
+export function getEmployeesForPairs(
+  pairs: Array<{ customerNumber: string; locationNumber: string }>
+): Employee[] {
+  return pairs.flatMap(({ customerNumber, locationNumber }) =>
+    getEmployees(customerNumber, locationNumber)
+  );
+}
+
+export function getLiveEmployeesForPairs(
+  pairs: Array<{ customerNumber: string; locationNumber: string }>
+): Employee[] {
+  const overrides = readOverrides();
+  return getEmployeesForPairs(pairs).map((employee) =>
+    applyOverrides(employee, overrides)
+  );
+}
+
+export function getEmployeesForEvent(event: ScanEvent): Employee[] {
+  return getEmployeesForPairs(expandEventAccounts(event.accounts));
+}
+
+export function getLiveEmployeesForEvent(event: ScanEvent): Employee[] {
+  return getLiveEmployeesForPairs(expandEventAccounts(event.accounts));
 }
 
 export function employeeDisplayName(employee: Pick<Employee, "firstName" | "lastName">) {

@@ -15,6 +15,7 @@ export type ScanRecord = {
 
 export type Employee = {
   id: string;
+  scanId: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -23,10 +24,22 @@ export type Employee = {
   scans: Record<ScanType, ScanRecord>;
 };
 
-export type QrPayload = {
-  lastName: string;
-  employeeId: string;
-  email: string;
+export type EventAccount = {
   customerNumber: string;
-  locationNumber: string;
+  /** When null, every demo location under the customer is included. */
+  locationNumber: string | null;
+};
+
+export type ScanEvent = {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  accounts: EventAccount[];
+  createdAt: string;
+};
+
+export type AuthSession = {
+  email: string;
+  authenticatedAt: string;
 };

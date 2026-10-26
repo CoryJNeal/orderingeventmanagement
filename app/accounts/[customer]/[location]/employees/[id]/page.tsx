@@ -1,3 +1,4 @@
+import { AuthGuard } from "@/components/auth-guard";
 import { EmployeeProfile } from "@/components/employee-profile";
 import { InvalidAccount } from "@/components/invalid-account";
 import { isCustomerNumber, isLocationNumber } from "@/lib/account";
@@ -11,18 +12,24 @@ export default async function EmployeePage({
   const { customer, location, id } = await params;
 
   if (!isCustomerNumber(customer) || !isLocationNumber(location)) {
-    return <InvalidAccount />;
+    return (
+      <AuthGuard>
+        <InvalidAccount />
+      </AuthGuard>
+    );
   }
 
   const initialEmployee =
     getEmployees(customer, location).find((person) => person.id === id) ?? null;
 
   return (
-    <EmployeeProfile
-      customerNumber={customer}
-      locationNumber={location}
-      employeeId={id}
-      initialEmployee={initialEmployee}
-    />
+    <AuthGuard>
+      <EmployeeProfile
+        customerNumber={customer}
+        locationNumber={location}
+        employeeId={id}
+        initialEmployee={initialEmployee}
+      />
+    </AuthGuard>
   );
 }

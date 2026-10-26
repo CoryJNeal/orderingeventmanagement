@@ -10,7 +10,7 @@ export const SCAN_BLURBS: Record<ScanType, string> = {
   "footwear-sizing":
     "Opens the sizing app so the employee can complete a foot scan.",
   "footwear-pressure":
-    "Shows a QR code the pressure-scan vendor uses to pick up this employee.",
+    "Shows this employee’s Scan ID so the vendor can look them up and continue scanning.",
   "face-pd":
     "Opens the eyewear app so the employee can complete a face and PD scan.",
 };

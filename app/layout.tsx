@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Event Scan Desk",
   description:
-    "Look up a customer location, run footwear and eyewear scans, and export pressure-scan QR codes for event employees.",
+    "Sign in, create field events, look up employees, and export Scan IDs for footwear and eyewear scans.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

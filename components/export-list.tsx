@@ -3,22 +3,35 @@
 import Link from "next/link";
 import { Printer } from "lucide-react";
 
-import { EmployeeQr } from "@/components/employee-qr";
 import { SiteHeader } from "@/components/site-header";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { accountPath } from "@/lib/account";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { employeeDisplayName } from "@/lib/employees";
-import { buildQrPayload } from "@/lib/qr";
 import { cn } from "@/lib/utils";
 import type { Employee } from "@/lib/types";
 
 export function ExportList({
+  title,
+  subtitle,
+  backHref,
   customerNumber,
   locationNumber,
+  eventName,
   employees,
 }: {
-  customerNumber: string;
-  locationNumber: string;
+  title: string;
+  subtitle: string;
+  backHref: string;
+  customerNumber?: string;
+  locationNumber?: string;
+  eventName?: string;
   employees: Employee[];
 }) {
   return (
@@ -26,22 +39,17 @@ export function ExportList({
       <SiteHeader
         customerNumber={customerNumber}
         locationNumber={locationNumber}
+        eventName={eventName}
       />
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
         <div className="flex flex-col gap-4 print:hidden sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Pressure scan export
-            </h1>
-            <p className="max-w-2xl text-sm text-muted-foreground">
-              Full roster for customer {customerNumber}, location{" "}
-              {locationNumber}. Each employee has a QR code with last name,
-              employee ID, email, customer number, and location number.
-            </p>
+            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+            <p className="max-w-2xl text-sm text-muted-foreground">{subtitle}</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
-              href={accountPath(customerNumber, locationNumber)}
+              href={backHref}
               className={cn(buttonVariants({ variant: "outline" }))}
             >
               Back to roster
@@ -54,50 +62,43 @@ export function ExportList({
         </div>
 
         <div className="hidden print:block">
-          <h1 className="text-xl font-semibold">
-            Footwear pressure QR codes
-          </h1>
-          <p className="text-sm">
-            Customer {customerNumber} · Location {locationNumber}
-          </p>
+          <h1 className="text-xl font-semibold">{title}</h1>
+          <p className="text-sm">{subtitle}</p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {employees.map((employee) => {
-            const payload = buildQrPayload(employee);
-            return (
-              <article
-                key={employee.id}
-                className="break-inside-avoid rounded-xl bg-card p-4 ring-1 ring-foreground/10"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="font-semibold">
-                      {employeeDisplayName(employee)}
-                    </h2>
-                    <p className="font-mono text-xs text-muted-foreground">
-                      {employee.id}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-4 flex justify-center">
-                  <EmployeeQr employee={employee} size={148} />
-                </div>
-                <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 text-xs">
-                  <dt className="text-muted-foreground">Last name</dt>
-                  <dd>{payload.lastName}</dd>
-                  <dt className="text-muted-foreground">Employee ID</dt>
-                  <dd className="font-mono">{payload.employeeId}</dd>
-                  <dt className="text-muted-foreground">Email</dt>
-                  <dd className="break-all">{payload.email}</dd>
-                  <dt className="text-muted-foreground">Customer #</dt>
-                  <dd>{payload.customerNumber}</dd>
-                  <dt className="text-muted-foreground">Location #</dt>
-                  <dd>{payload.locationNumber}</dd>
-                </dl>
-              </article>
-            );
-          })}
+        <div className="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/10">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Employee</TableHead>
+                <TableHead>Scan ID</TableHead>
+                <TableHead>Customer #</TableHead>
+                <TableHead>Location #</TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  Employee ID
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {employees.map((employee) => (
+                <TableRow
+                  key={`${employee.customerNumber}:${employee.locationNumber}:${employee.id}`}
+                >
+                  <TableCell className="font-medium">
+                    {employeeDisplayName(employee)}
+                  </TableCell>
+                  <TableCell className="font-mono text-sm">
+                    {employee.scanId}
+                  </TableCell>
+                  <TableCell>{employee.customerNumber}</TableCell>
+                  <TableCell>{employee.locationNumber}</TableCell>
+                  <TableCell className="hidden font-mono text-xs text-muted-foreground sm:table-cell">
+                    {employee.id}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </main>
     </div>

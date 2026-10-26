@@ -9,6 +9,26 @@ export function isLocationNumber(value: string) {
   return LOCATION_PATTERN.test(value);
 }
 
+export function homePath() {
+  return "/home";
+}
+
+export function lookupPath() {
+  return "/lookup";
+}
+
+export function createEventPath() {
+  return "/events/new";
+}
+
+export function eventPath(eventId: string) {
+  return `/events/${eventId}`;
+}
+
+export function eventExportPath(eventId: string) {
+  return `/events/${eventId}/export`;
+}
+
 export function accountPath(customerNumber: string, locationNumber: string) {
   return `/accounts/${customerNumber}/${locationNumber}`;
 }

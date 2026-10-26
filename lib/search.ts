@@ -7,6 +7,7 @@ function haystack(employee: Employee) {
     `${employee.firstName} ${employee.lastName}`,
     `${employee.lastName}, ${employee.firstName}`,
     employee.id,
+    employee.scanId,
     employee.email,
     employee.customerNumber,
     employee.locationNumber,

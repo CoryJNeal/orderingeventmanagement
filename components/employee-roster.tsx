@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { QrCode, Search } from "lucide-react";
+import { Download, Search } from "lucide-react";
 
 import { RosterStatusBadge } from "@/components/scan-status-badge";
 import { SiteHeader } from "@/components/site-header";
@@ -18,27 +18,41 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useLiveEmployees } from "@/hooks/use-live-employees";
-import { employeePath, exportPath } from "@/lib/account";
+import {
+  useLiveEmployees,
+  useLiveEmployeesForEvent,
+} from "@/hooks/use-live-employees";
+import {
+  employeePath,
+  eventExportPath,
+  exportPath,
+  lookupPath,
+} from "@/lib/account";
 import { employeeDisplayName } from "@/lib/employees";
+import { formatEventDateRange } from "@/lib/events";
 import { formatScanDate, latestScanDate } from "@/lib/scans";
 import { searchEmployees } from "@/lib/search";
-import type { Employee } from "@/lib/types";
+import type { Employee, ScanEvent } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export function EmployeeRoster({
+function EmployeeRosterView({
+  employees,
+  title,
+  description,
+  exportHref,
   customerNumber,
   locationNumber,
-  initialEmployees,
+  eventName,
 }: {
-  customerNumber: string;
-  locationNumber: string;
-  initialEmployees: Employee[];
+  employees: Employee[];
+  title: string;
+  description: string;
+  exportHref: string;
+  customerNumber?: string;
+  locationNumber?: string;
+  eventName?: string;
 }) {
   const router = useRouter();
-  const liveEmployees = useLiveEmployees(customerNumber, locationNumber);
-  const employees =
-    liveEmployees.length > 0 ? liveEmployees : initialEmployees;
   const [query, setQuery] = useState("");
   const results = useMemo(
     () => searchEmployees(employees, query),
@@ -50,32 +64,26 @@ export function EmployeeRoster({
       <SiteHeader
         customerNumber={customerNumber}
         locationNumber={locationNumber}
+        eventName={eventName}
       />
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Employee roster
-            </h1>
+            <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              Search by name, employee ID, email, customer number, or location
-              number. Open a person to run scans, or export the full list with
-              pressure-scan QR codes.
+              {description}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
-              href="/"
+              href={lookupPath()}
               className={cn(buttonVariants({ variant: "outline" }))}
             >
-              Change account
+              Change lookup
             </Link>
-            <Link
-              href={exportPath(customerNumber, locationNumber)}
-              className={cn(buttonVariants())}
-            >
-              <QrCode data-icon="inline-start" />
-              Export full list
+            <Link href={exportHref} className={cn(buttonVariants())}>
+              <Download data-icon="inline-start" />
+              Export Scan IDs
             </Link>
           </div>
         </div>
@@ -88,14 +96,14 @@ export function EmployeeRoster({
               id="roster-search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Last name, employee ID, email…"
+              placeholder="Last name, Scan ID, employee ID…"
               className="h-10 pl-8"
             />
           </div>
           <p className="text-sm text-muted-foreground">
             Showing {results.length} of {employees.length} employees
             {query.trim() ? ` matching “${query.trim()}”` : ""}. Export always
-            includes the full account list.
+            includes the full list.
           </p>
         </div>
 
@@ -104,8 +112,8 @@ export function EmployeeRoster({
             <div className="px-4 py-16 text-center">
               <p className="font-medium">No employees match those fields</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Try a last name, employee ID, or email, or clear the search to
-                see the full roster.
+                Try a last name, Scan ID, or email, or clear the search to see
+                the full roster.
               </p>
               <Button
                 variant="outline"
@@ -120,8 +128,13 @@ export function EmployeeRoster({
               <TableHeader>
                 <TableRow>
                   <TableHead>Employee</TableHead>
-                  <TableHead>Employee ID</TableHead>
-                  <TableHead className="hidden md:table-cell">Email</TableHead>
+                  <TableHead>Scan ID</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    Employee ID
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Customer / Loc
+                  </TableHead>
                   <TableHead>Scan status</TableHead>
                   <TableHead className="hidden sm:table-cell">
                     Last scan
@@ -131,49 +144,52 @@ export function EmployeeRoster({
               <TableBody>
                 {results.map((employee) => {
                   const href = employeePath(
-                    customerNumber,
-                    locationNumber,
+                    employee.customerNumber,
+                    employee.locationNumber,
                     employee.id
                   );
                   return (
-                  <TableRow
-                    key={employee.id}
-                    className="cursor-pointer"
-                    onClick={() => router.push(href)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        router.push(href);
-                      }
-                    }}
-                    tabIndex={0}
-                    role="link"
-                  >
-                    <TableCell className="font-medium">
-                      <Link
-                        href={href}
-                        className="block hover:underline"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        {employeeDisplayName(employee)}
-                      </Link>
-                      <p className="text-xs text-muted-foreground md:hidden">
-                        {employee.email}
-                      </p>
-                    </TableCell>
-                    <TableCell className="font-mono text-xs sm:text-sm">
-                      {employee.id}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {employee.email}
-                    </TableCell>
-                    <TableCell>
-                      <RosterStatusBadge employee={employee} />
-                    </TableCell>
-                    <TableCell className="hidden text-muted-foreground sm:table-cell">
-                      {formatScanDate(latestScanDate(employee))}
-                    </TableCell>
-                  </TableRow>
+                    <TableRow
+                      key={`${employee.customerNumber}:${employee.locationNumber}:${employee.id}`}
+                      className="cursor-pointer"
+                      onClick={() => router.push(href)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          router.push(href);
+                        }
+                      }}
+                      tabIndex={0}
+                      role="link"
+                    >
+                      <TableCell className="font-medium">
+                        <Link
+                          href={href}
+                          className="block hover:underline"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          {employeeDisplayName(employee)}
+                        </Link>
+                        <p className="text-xs text-muted-foreground md:hidden">
+                          {employee.email}
+                        </p>
+                      </TableCell>
+                      <TableCell className="font-mono text-xs sm:text-sm">
+                        {employee.scanId}
+                      </TableCell>
+                      <TableCell className="hidden font-mono text-xs lg:table-cell sm:text-sm">
+                        {employee.id}
+                      </TableCell>
+                      <TableCell className="hidden text-muted-foreground md:table-cell">
+                        {employee.customerNumber} / {employee.locationNumber}
+                      </TableCell>
+                      <TableCell>
+                        <RosterStatusBadge employee={employee} />
+                      </TableCell>
+                      <TableCell className="hidden text-muted-foreground sm:table-cell">
+                        {formatScanDate(latestScanDate(employee))}
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
               </TableBody>
@@ -182,5 +198,52 @@ export function EmployeeRoster({
         </div>
       </main>
     </div>
+  );
+}
+
+export function EmployeeRoster({
+  customerNumber,
+  locationNumber,
+  initialEmployees,
+}: {
+  customerNumber: string;
+  locationNumber: string;
+  initialEmployees: Employee[];
+}) {
+  const liveEmployees = useLiveEmployees(customerNumber, locationNumber);
+  const employees =
+    liveEmployees.length > 0 ? liveEmployees : initialEmployees;
+
+  return (
+    <EmployeeRosterView
+      employees={employees}
+      title="Employee roster"
+      description={`Search by name, employee ID, Scan ID, email, customer number, or location number for customer ${customerNumber}, location ${locationNumber}.`}
+      exportHref={exportPath(customerNumber, locationNumber)}
+      customerNumber={customerNumber}
+      locationNumber={locationNumber}
+    />
+  );
+}
+
+export function EventEmployeeRoster({
+  event,
+  initialEmployees,
+}: {
+  event: ScanEvent;
+  initialEmployees: Employee[];
+}) {
+  const liveEmployees = useLiveEmployeesForEvent(event);
+  const employees =
+    liveEmployees.length > 0 ? liveEmployees : initialEmployees;
+
+  return (
+    <EmployeeRosterView
+      employees={employees}
+      title={event.name}
+      description={`${formatEventDateRange(event)}. Search across every account on this event. Export includes Scan IDs for the vendor app.`}
+      exportHref={eventExportPath(event.id)}
+      eventName={event.name}
+    />
   );
 }

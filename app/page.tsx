@@ -1,28 +1,20 @@
-import { redirect } from "next/navigation";
+import { LoginForm } from "@/components/login-form";
 
-import { LookupForm } from "@/components/lookup-form";
-import {
-  accountPath,
-  isCustomerNumber,
-  isLocationNumber,
-} from "@/lib/account";
-
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ customer?: string; location?: string }>;
-}) {
-  const query = await searchParams;
-  const customer = query.customer?.trim() ?? "";
-  const location = query.location?.trim() ?? "";
-
-  if (isCustomerNumber(customer) && isLocationNumber(location)) {
-    redirect(accountPath(customer, location));
-  }
-
+export default function Home() {
   return (
     <div className="grid min-h-svh w-full place-items-center px-4">
-      <LookupForm />
+      <div className="flex w-full max-w-sm flex-col items-center gap-6">
+        <div className="space-y-1 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Event Scan Desk
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Sign in with password and one-time code to access customer event
+            data.
+          </p>
+        </div>
+        <LoginForm />
+      </div>
     </div>
   );
 }

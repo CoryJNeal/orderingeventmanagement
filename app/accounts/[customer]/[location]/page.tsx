@@ -1,3 +1,4 @@
+import { AuthGuard } from "@/components/auth-guard";
 import { EmployeeRoster } from "@/components/employee-roster";
 import { InvalidAccount } from "@/components/invalid-account";
 import { isCustomerNumber, isLocationNumber } from "@/lib/account";
@@ -11,14 +12,20 @@ export default async function RosterPage({
   const { customer, location } = await params;
 
   if (!isCustomerNumber(customer) || !isLocationNumber(location)) {
-    return <InvalidAccount />;
+    return (
+      <AuthGuard>
+        <InvalidAccount />
+      </AuthGuard>
+    );
   }
 
   return (
-    <EmployeeRoster
-      customerNumber={customer}
-      locationNumber={location}
-      initialEmployees={getEmployees(customer, location)}
-    />
+    <AuthGuard>
+      <EmployeeRoster
+        customerNumber={customer}
+        locationNumber={location}
+        initialEmployees={getEmployees(customer, location)}
+      />
+    </AuthGuard>
   );
 }

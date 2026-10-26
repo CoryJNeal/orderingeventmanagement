@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowLeft, Glasses, Footprints, QrCode } from "lucide-react";
+import { ArrowLeft, Glasses, Footprints, ScanLine } from "lucide-react";
 
-import { PressureQrDialog } from "@/components/pressure-qr-dialog";
+import { PressureScanDialog } from "@/components/pressure-scan-dialog";
 import { ScanStatusBadge } from "@/components/scan-status-badge";
 import { SiteHeader } from "@/components/site-header";
 import { buttonVariants } from "@/components/ui/button";
@@ -25,7 +25,7 @@ import type { Employee, ScanType } from "@/lib/types";
 
 const SCAN_ICONS: Record<ScanType, typeof Footprints> = {
   "footwear-sizing": Footprints,
-  "footwear-pressure": QrCode,
+  "footwear-pressure": ScanLine,
   "face-pd": Glasses,
 };
 
@@ -80,6 +80,7 @@ export function EmployeeProfile({
   const fields = [
     ["First name", employee.firstName],
     ["Last name", employee.lastName],
+    ["Scan ID", employee.scanId],
     ["Employee ID", employee.id],
     ["Email", employee.email],
     ["Customer #", employee.customerNumber],
@@ -114,7 +115,8 @@ export function EmployeeProfile({
           <CardHeader className="border-b">
             <CardTitle>Employee profile</CardTitle>
             <CardDescription>
-              Fields passed to vendor tools and the pressure-scan QR code.
+              Scan ID links this person in the vendor pressure-scan app. It is
+              not the HR employee ID.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -124,7 +126,14 @@ export function EmployeeProfile({
                   <dt className="text-xs tracking-wide text-muted-foreground uppercase">
                     {label}
                   </dt>
-                  <dd className="mt-1 font-medium break-all">{value}</dd>
+                  <dd
+                    className={cn(
+                      "mt-1 font-medium break-all",
+                      label === "Scan ID" && "font-mono tracking-wide"
+                    )}
+                  >
+                    {value}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -161,7 +170,7 @@ export function EmployeeProfile({
                         className={cn(buttonVariants(), "w-full")}
                         onClick={() => setPressureOpen(true)}
                       >
-                        Open pressure QR
+                        Show Scan ID
                       </button>
                     ) : (
                       <Link
@@ -185,7 +194,7 @@ export function EmployeeProfile({
           )}
         </section>
       </main>
-      <PressureQrDialog
+      <PressureScanDialog
         employee={employee}
         open={pressureOpen}
         onOpenChange={setPressureOpen}

@@ -4,11 +4,15 @@ import { useCallback, useSyncExternalStore } from "react";
 
 import {
   getEmployees,
+  getEmployeesForEvent,
+  getEmployeesForPairs,
   getLiveEmployee,
   getLiveEmployees,
+  getLiveEmployeesForEvent,
+  getLiveEmployeesForPairs,
 } from "@/lib/employees";
 import { completeScan } from "@/lib/scans";
-import type { Employee, ScanType } from "@/lib/types";
+import type { Employee, ScanEvent, ScanType } from "@/lib/types";
 
 let version = 0;
 const rosterCache = new Map<string, Employee[]>();
@@ -47,6 +51,30 @@ function rosterSnapshot(customerNumber: string, locationNumber: string) {
   return employees;
 }
 
+function pairsSnapshot(
+  pairs: Array<{ customerNumber: string; locationNumber: string }>
+) {
+  const key = `${version}:pairs:${pairs
+    .map((pair) => `${pair.customerNumber}:${pair.locationNumber}`)
+    .join("|")}`;
+  const cached = rosterCache.get(key);
+  if (cached) return cached;
+  const employees = getLiveEmployeesForPairs(pairs);
+  rosterCache.set(key, employees);
+  return employees;
+}
+
+function eventSnapshot(event: ScanEvent) {
+  const key = `${version}:event:${event.id}:${event.accounts
+    .map((account) => `${account.customerNumber}:${account.locationNumber ?? "*"}`)
+    .join("|")}`;
+  const cached = rosterCache.get(key);
+  if (cached) return cached;
+  const employees = getLiveEmployeesForEvent(event);
+  rosterCache.set(key, employees);
+  return employees;
+}
+
 function employeeSnapshot(
   customerNumber: string,
   locationNumber: string,
@@ -77,6 +105,28 @@ function seedRoster(customerNumber: string, locationNumber: string) {
   return employees;
 }
 
+function seedPairs(
+  pairs: Array<{ customerNumber: string; locationNumber: string }>
+) {
+  const key = `pairs:${pairs
+    .map((pair) => `${pair.customerNumber}:${pair.locationNumber}`)
+    .join("|")}`;
+  const cached = seedRosterCache.get(key);
+  if (cached) return cached;
+  const employees = getEmployeesForPairs(pairs);
+  seedRosterCache.set(key, employees);
+  return employees;
+}
+
+function seedEvent(event: ScanEvent) {
+  const key = `event:${event.id}`;
+  const cached = seedRosterCache.get(key);
+  if (cached) return cached;
+  const employees = getEmployeesForEvent(event);
+  seedRosterCache.set(key, employees);
+  return employees;
+}
+
 function seedEmployee(
   customerNumber: string,
   locationNumber: string,
@@ -102,6 +152,24 @@ export function useLiveEmployees(
     subscribe,
     () => rosterSnapshot(customerNumber, locationNumber),
     () => seedRoster(customerNumber, locationNumber)
+  );
+}
+
+export function useLiveEmployeesForPairs(
+  pairs: Array<{ customerNumber: string; locationNumber: string }>
+) {
+  return useSyncExternalStore(
+    subscribe,
+    () => pairsSnapshot(pairs),
+    () => seedPairs(pairs)
+  );
+}
+
+export function useLiveEmployeesForEvent(event: ScanEvent | null) {
+  return useSyncExternalStore(
+    subscribe,
+    () => (event ? eventSnapshot(event) : []),
+    () => (event ? seedEvent(event) : [])
   );
 }
 
