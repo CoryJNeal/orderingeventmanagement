@@ -147,7 +147,7 @@ export function EmployeeProfile({
               const record = employee.scans[scanType];
               return (
                 <Card key={scanType} className="h-full">
-                  <CardHeader>
+                  <CardHeader className="flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <span className="flex size-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
                         <Icon className="size-4" />
@@ -157,13 +157,13 @@ export function EmployeeProfile({
                     <CardTitle>{SCAN_LABELS[scanType]}</CardTitle>
                     <CardDescription>{SCAN_BLURBS[scanType]}</CardDescription>
                   </CardHeader>
-                  <CardContent className="text-sm">
+                  <CardContent className="mt-auto text-sm">
                     <p className="text-muted-foreground">Last scan date</p>
                     <p className="font-medium">
                       {formatScanDate(record.lastScanDate)}
                     </p>
                   </CardContent>
-                  <CardFooter>
+                  <CardFooter className="mt-auto">
                     {scanType === "footwear-pressure" ? (
                       <button
                         type="button"
