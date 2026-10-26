@@ -194,71 +194,57 @@ export function CreateEventForm() {
                 return (
                   <div
                     key={account.key}
-                    className="grid gap-3 rounded-xl border border-border p-3 sm:grid-cols-[1fr_1fr_auto]"
+                    className="grid gap-3 rounded-xl border border-border p-3"
                   >
-                    <div className="grid gap-2">
-                      <Label htmlFor={`customer-${account.key}`}>
-                        Customer #{index + 1}
-                      </Label>
-                      <Input
-                        id={`customer-${account.key}`}
-                        inputMode="numeric"
-                        maxLength={6}
-                        value={account.customerNumber}
-                        aria-invalid={customerInvalid || undefined}
-                        placeholder="123456"
-                        className="h-10"
-                        onChange={(event) =>
-                          updateAccount(account.key, {
-                            customerNumber: event.target.value
-                              .replace(/\D/g, "")
-                              .slice(0, 6),
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor={`location-${account.key}`}>
-                        Location #
-                      </Label>
-                      <Input
-                        id={`location-${account.key}`}
-                        inputMode="numeric"
-                        maxLength={5}
-                        value={account.locationNumber}
-                        disabled={account.allLocations}
-                        aria-invalid={locationInvalid || undefined}
-                        placeholder="00142"
-                        className="h-10"
-                        onChange={(event) =>
-                          updateAccount(account.key, {
-                            locationNumber: event.target.value
-                              .replace(/\D/g, "")
-                              .slice(0, 5),
-                          })
-                        }
-                      />
-                      <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <input
-                          type="checkbox"
-                          checked={account.allLocations}
+                    <div className="grid items-end gap-3 sm:grid-cols-[1fr_1fr_auto]">
+                      <div className="grid gap-2">
+                        <Label htmlFor={`customer-${account.key}`}>
+                          Customer #{index + 1}
+                        </Label>
+                        <Input
+                          id={`customer-${account.key}`}
+                          inputMode="numeric"
+                          maxLength={6}
+                          value={account.customerNumber}
+                          aria-invalid={customerInvalid || undefined}
+                          placeholder="123456"
+                          className="h-10"
                           onChange={(event) =>
                             updateAccount(account.key, {
-                              allLocations: event.target.checked,
-                              locationNumber: event.target.checked
-                                ? ""
-                                : account.locationNumber,
+                              customerNumber: event.target.value
+                                .replace(/\D/g, "")
+                                .slice(0, 6),
                             })
                           }
                         />
-                        All locations on this customer
-                      </label>
-                    </div>
-                    <div className="flex items-start justify-end pt-6">
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor={`location-${account.key}`}>
+                          Location #
+                        </Label>
+                        <Input
+                          id={`location-${account.key}`}
+                          inputMode="numeric"
+                          maxLength={5}
+                          value={account.locationNumber}
+                          disabled={account.allLocations}
+                          aria-invalid={locationInvalid || undefined}
+                          placeholder="00142"
+                          className="h-10"
+                          onChange={(event) =>
+                            updateAccount(account.key, {
+                              locationNumber: event.target.value
+                                .replace(/\D/g, "")
+                                .slice(0, 5),
+                            })
+                          }
+                        />
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
+                        className="justify-self-end sm:mb-0.5"
                         disabled={accounts.length === 1}
                         aria-label="Remove account"
                         onClick={() =>
@@ -270,6 +256,21 @@ export function CreateEventForm() {
                         <Trash2 />
                       </Button>
                     </div>
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <input
+                        type="checkbox"
+                        checked={account.allLocations}
+                        onChange={(event) =>
+                          updateAccount(account.key, {
+                            allLocations: event.target.checked,
+                            locationNumber: event.target.checked
+                              ? ""
+                              : account.locationNumber,
+                          })
+                        }
+                      />
+                      All locations on this customer
+                    </label>
                   </div>
                 );
               })}

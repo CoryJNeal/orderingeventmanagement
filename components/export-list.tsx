@@ -13,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { employeeDisplayName } from "@/lib/employees";
 import { cn } from "@/lib/utils";
 import type { Employee } from "@/lib/types";
 
@@ -70,13 +69,9 @@ export function ExportList({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Employee</TableHead>
                 <TableHead>Scan ID</TableHead>
                 <TableHead>Customer #</TableHead>
                 <TableHead>Location #</TableHead>
-                <TableHead className="hidden sm:table-cell">
-                  Employee ID
-                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -84,17 +79,11 @@ export function ExportList({
                 <TableRow
                   key={`${employee.customerNumber}:${employee.locationNumber}:${employee.id}`}
                 >
-                  <TableCell className="font-medium">
-                    {employeeDisplayName(employee)}
-                  </TableCell>
                   <TableCell className="font-mono text-sm">
                     {employee.scanId}
                   </TableCell>
                   <TableCell>{employee.customerNumber}</TableCell>
                   <TableCell>{employee.locationNumber}</TableCell>
-                  <TableCell className="hidden font-mono text-xs text-muted-foreground sm:table-cell">
-                    {employee.id}
-                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
