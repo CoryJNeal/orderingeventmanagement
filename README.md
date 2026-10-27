@@ -35,3 +35,11 @@ npm run dev
 ```
 
 Open [http://127.0.0.1:43145](http://127.0.0.1:43145).
+
+## Documentation for Copilot
+
+Markdown for GitHub Copilot, Microsoft 365 Copilot, or Copilot Studio is in [`docs/`](./docs/README.md).
+
+- **One-file upload:** [`docs/COPILOT-KNOWLEDGE.md`](./docs/COPILOT-KNOWLEDGE.md)
+- **Full set:** `docs/ARCHITECTURE.md`, `DATA-MODEL.md`, `USER-FLOWS.md`, `ROUTES-AND-FILES.md`
+- **In-repo Copilot Chat:** [`.github/copilot-instructions.md`](./.github/copilot-instructions.md) is applied automatically when this repository is opened in GitHub Copilot.
