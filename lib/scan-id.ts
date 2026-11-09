@@ -56,5 +56,5 @@ export function generateScanId(
     primary & 255,
     extra & 255,
   ]);
-  return `SC-${encodeCrockfordBase32(bytes)}`;
+  return encodeCrockfordBase32(bytes);
 }
